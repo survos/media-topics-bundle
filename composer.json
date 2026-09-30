@@ -1,0 +1,39 @@
+{
+    "name": "survos/media-topics-bundle",
+    "description": "IPTC Media Topics in a Symfony app: the vocabulary as a service, plus console commands and agent tools to browse and search it",
+    "keywords": ["iptc", "media-topics", "newscodes", "taxonomy", "vocabulary"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tac Tacelosky",
+            "email": "tacman@gmail.com"
+        }
+    ],
+    "type": "symfony-bundle",
+    "require": {
+        "php": "^8.5",
+        "survos/kit-bundle": "^2.5",
+        "survos/media-topics": "^2.34",
+        "symfony/config": "^8.1",
+        "symfony/console": "^8.1",
+        "symfony/dependency-injection": "^8.1",
+        "symfony/framework-bundle": "^8.1",
+        "symfony/http-kernel": "^8.1"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.0",
+        "phpunit/phpunit": "^13.0",
+        "survos/command-bundle": "^2.34",
+        "symfony/http-client": "^8.1"
+    },
+    "suggest": {
+        "survos/command-bundle": "Exposes the browse and search commands as MCP agent tools.",
+        "symfony/http-client": "Needed by media-topics:download to fetch a newer release from IPTC."
+    },
+    "autoload": {
+        "psr-4": {
+            "Survos\\MediaTopicsBundle\\": "src/",
+            "Survos\\MediaTopicsBundle\\Tests\\": "tests/"
+        }
+    }
+}
