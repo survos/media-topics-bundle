@@ -26,7 +26,8 @@ final class MediaTopicsCommands
         private readonly Genres $genres,
         private readonly string $defaultLocale = MediaTopics::DEFAULT_LOCALE,
         private readonly ?HttpClientInterface $http = null,
-    ) {}
+    ) {
+    }
 
     #[AsCommand('media-topics:show', 'Show one IPTC Media Topic with its path and children, or the top-level topics')]
     #[AsAgentTool(readOnly: true, public: true)]
@@ -37,11 +38,11 @@ final class MediaTopicsCommands
         #[Option('Output format: text or json')] string $format = 'text',
     ): int {
         $locale ??= $this->defaultLocale;
-        if ($topic === null) {
+        if (null === $topic) {
             $data = ['version' => $this->topics->version(), 'topics' => count($this->topics), 'children' => $this->rows($this->topics->roots(), $locale)];
         } else {
             $found = $this->topics->get($topic);
-            if ($found === null) {
+            if (null === $found) {
                 $io->error(sprintf('No Media Topic "%s".', $topic));
 
                 return Command::FAILURE;
@@ -55,12 +56,12 @@ final class MediaTopicsCommands
                 'children' => $this->rows($this->topics->children($found->id), $locale),
             ];
         }
-        if ($format === 'json') {
+        if ('json' === $format) {
             $this->json($io, $data);
 
             return Command::SUCCESS;
         }
-        if ($topic === null) {
+        if (null === $topic) {
             $io->title(sprintf('IPTC Media Topics %s: %d topics', $data['version'], $data['topics']));
         } else {
             $io->title(sprintf('%s  %s', $data['qcode'], implode(' > ', [...$data['path'], $data['label']])));
@@ -91,7 +92,7 @@ final class MediaTopicsCommands
             fn (MediaTopic $t): array => $this->row($t, $locale) + ['path' => array_map(static fn (MediaTopic $a): string => $a->label($locale), $this->topics->ancestors($t->id))],
             $this->topics->search($query, $locale, $limit),
         );
-        if ($format === 'json') {
+        if ('json' === $format) {
             $this->json($io, ['topics' => $rows]);
         } else {
             $io->table(['qcode', 'topic', 'definition'], array_map(
@@ -110,8 +111,8 @@ final class MediaTopicsCommands
         #[Argument('Words to look for in label or definition; omit to list every genre')] ?string $query = null,
         #[Option('Output format: text or json')] string $format = 'text',
     ): int {
-        $rows = $this->rows($query === null ? $this->genres->all() : $this->genres->search($query, limit: 100), ConceptSet::DEFAULT_LOCALE);
-        if ($format === 'json') {
+        $rows = $this->rows(null === $query ? $this->genres->all() : $this->genres->search($query, limit: 100), ConceptSet::DEFAULT_LOCALE);
+        if ('json' === $format) {
             $this->json($io, ['version' => $this->genres->version(), 'genres' => $rows]);
         } else {
             $io->title(sprintf('IPTC Genres %s: %d genres', $this->genres->version(), count($this->genres)));
@@ -127,7 +128,7 @@ final class MediaTopicsCommands
         #[Argument('Where to write the JSON export')] string $file,
         #[Option('Fetch the Genre vocabulary instead of Media Topics')] bool $genre = false,
     ): int {
-        if ($this->http === null) {
+        if (null === $this->http) {
             $io->error('Needs symfony/http-client.');
 
             return Command::FAILURE;
@@ -152,6 +153,7 @@ final class MediaTopicsCommands
 
     /**
      * @param list<Concept> $topics
+     *
      * @return list<array{id: string, qcode: string, label: string, definition: string}>
      */
     private function rows(array $topics, string $locale): array
@@ -162,7 +164,7 @@ final class MediaTopicsCommands
     /** @param list<array{id: string, qcode: string, label: string, definition: string}> $rows */
     private function table(SymfonyStyle $io, array $rows): void
     {
-        if ($rows !== []) {
+        if ([] !== $rows) {
             $io->table(['qcode', 'label', 'definition'], array_map(
                 static fn (array $r): array => [$r['qcode'], $r['label'], mb_strimwidth($r['definition'], 0, 80, '…')],
                 $rows,
